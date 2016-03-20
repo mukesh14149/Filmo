@@ -1,0 +1,99 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false">
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.mukesh.filmo.Movie_detailFragment"
+    tools:showIn="@layout/activity_movie_detail">
+
+    <ImageView
+        android:id="@+id/mBackdrop"
+        android:layout_width="match_parent"
+        android:layout_height="10pt"
+        />
+
+    <ImageView
+        android:id="@+id/mPoster"
+        android:layout_width="20pt"
+        android:layout_height="20pt"
+        android:layout_marginTop="20pt"
+        android:layout_marginLeft="20pt"
+        android:layout_marginStart="20pt"
+
+        />
+
+    <TextView
+        android:id="@+id/mTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mBackdrop"
+        android:layout_toRightOf="@id/mPoster"
+        android:layout_toEndOf="@id/mPoster"
+
+        android:ellipsize="end"
+        android:maxLines="2"
+
+        android:textStyle="bold"
+        />
+    <TextView
+        android:id="@+id/mRelease"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mTitle"
+        android:layout_toRightOf="@id/mPoster"
+        android:layout_toEndOf="@id/mPoster"
+        android:layout_marginTop="2dp"
+
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        />
+
+    <LinearLayout
+        android:id="@+id/rating_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/mRelease"
+        android:layout_toRightOf="@id/mPoster"
+        android:layout_toEndOf="@id/mPoster"
+        android:layout_marginTop="-8dp"
+
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:clipChildren="false">
+        <TextView
+            android:id="@+id/mRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+            android:textColor="?android:attr/textColorPrimary"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/mSynopsis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rating_container"
+        android:layout_centerHorizontal="true"
+
+        />
+
+</RelativeLayout>
+</ScrollView>

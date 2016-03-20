@@ -1,11 +1,9 @@
 package com.example.mukesh.filmo;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -14,7 +12,7 @@ import com.squareup.picasso.Picasso;
  * Created by mukesh on 20/3/16.
  */
 public class ImageAdapter extends BaseAdapter {
-    final String LOG_TAG = FetchMovieData.class.getSimpleName();
+
     private Context mContext;
     private String[] image_url;
     public ImageAdapter(Context c, String[] image_url) {
@@ -41,14 +39,14 @@ public class ImageAdapter extends BaseAdapter {
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(185, 185));
+            imageView.setAdjustViewBounds(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
+            imageView.setPadding(1, 1, 1, 1);
         } else {
             imageView = (ImageView) convertView;
         }
 
-        Log.e(LOG_TAG,image_url[position]);
+
         //imageView.setImageResource(mThumbIds[position]);
         Picasso.with(mContext).load(image_url[position]).into(imageView);
         return imageView;
