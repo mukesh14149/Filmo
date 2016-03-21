@@ -24,7 +24,8 @@
         <activity
             android:name=".Movie_detail"
             android:label="@string/title_activity_movie_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Settings_Activity"></activity>
     </application>
 
 </manifest>

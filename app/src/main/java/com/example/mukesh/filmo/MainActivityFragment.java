@@ -2,16 +2,22 @@ package com.example.mukesh.filmo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,20 +37,52 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment {
     public GridView gridview;
     private Movie[] movieList;
+    String Preference;
+    View rootView;
     public MainActivityFragment() {
+    }
+
+    public boolean Is_Online(){
+        ConnectivityManager connectivity = (ConnectivityManager)getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null)
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+
+        }
+        return false;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final String LOG_TAG = FetchMovieData.class.getSimpleName();
-
+        PreferenceManager.setDefaultValues(getActivity().getApplication(), R.xml.pref_general, true);
         FetchMovieData fetchMovieData;
 
-        View rootView=inflater.inflate(R.layout.fragment_main, container, false);
-        gridview = (GridView) rootView.findViewById(R.id.gridview);
-        new FetchMovieData(getActivity(),rootView).execute();
+        rootView=inflater.inflate(R.layout.fragment_main, container, false);
 
+        if (savedInstanceState == null || !savedInstanceState.containsKey("Movies")) {
+            updateMovie(getActivity(),rootView);
+            gridview = (GridView) rootView.findViewById(R.id.gridview);
+        }
+
+        else {
+            movieList = (Movie[]) savedInstanceState.getParcelableArray("Movies");
+            String[] movie_list = new String[movieList.length];
+            for (int i = 0; i < movieList.length; i++) {
+                movie_list[i] = movieList[i].getPoster_path();
+            }
+
+            gridview = (GridView) rootView.findViewById(R.id.gridview);
+            ImageAdapter adapter = new ImageAdapter(getActivity(), movie_list);
+            gridview.setAdapter(adapter);
+        }
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -61,7 +99,37 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
-    public class FetchMovieData extends AsyncTask<Void, Void, Movie[]>{
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovie(getActivity(),rootView);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saving_State) {
+        saving_State.putParcelableArray("Movies", movieList);
+        saving_State.putString("Preference", Preference);
+        super.onSaveInstanceState(saving_State);
+    }
+    private void updateMovie(Context context, View rootView){
+        if(Is_Online()==true) {
+            FetchMovieData updateMovies = new FetchMovieData(context,rootView);
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+            Preference = sharedPref.getString("pref_order", "popularity.desc");
+
+            updateMovies.execute(Preference);
+        }
+        else
+        {
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Device Not Connected to the Internet.",
+                    Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
+            toast.show();
+        }
+    }
+
+
+    public class FetchMovieData extends AsyncTask<String, Void, Movie[]>{
         private Context mContext;
         private View rootView;
 
@@ -123,7 +191,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        protected Movie[] doInBackground(Void... params) {
+        protected Movie[] doInBackground(String... params) {
             ArrayList<String> result=null;
             Movie[] movies=new Movie[0];
 
@@ -135,7 +203,7 @@ public class MainActivityFragment extends Fragment {
 
             try {
                 Uri buildUri = Uri.parse("http://api.themoviedb.org/3/discover/movie?").buildUpon()
-                        .appendQueryParameter("sort_by","pref_order")
+                        .appendQueryParameter("sort_by", params[0])
                         .appendQueryParameter("api_key", "1b198518f15a8813614d12b8df36bd7a")
                         .build();
                 Log.e(LOG_TAG,buildUri.toString());
