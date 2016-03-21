@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/margin_large"
         android:id="@+id/frag_container"
-        tools:context="com.example.siddharth.popmovieapp.MovieDescriptionFragment">
+        tools:context="com.example.mukesh.filmo.Movie_detailFragment">
 
         <TextView
             android:id="@+id/movie_title"
