@@ -3,4 +3,25 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_movie_detail">Movie_detail</string>
     <string name="title_activity_check">check</string>
+    <string name="pref_order">pref_order</string>
+
+    <string name="pref_popularity">popularity.desc</string>
+    <string name="offline_message">Device Not Connected to the Internet.</string>
+
+    <string name="poster_path">http://image.tmdb.org/t/p/w342</string>
+    <string name="backdrop_path">http://image.tmdb.org/t/p/original</string>
+    <string name="movie_url">http://api.themoviedb.org/3/discover/movie?</string>
+
+
+    <string name="sort_by">sort_by</string>
+    <string name="api_key">api_key</string>
+    <string name="api_value">1b198518f15a8813614d12b8df36bd7a</string>
+
+    <string name="request_method">GET</string>
+    <string name="sort_title">Select Sort Preference</string>
+    <string name="sort_message">Sorting Preference</string>
+    <string name="sort_choice_message">Select Your Choice:</string>
+    <string name="sort_default_choice">popularity.desc</string>
+
+    <string name="rating_denominator">/10</string>
 </resources>

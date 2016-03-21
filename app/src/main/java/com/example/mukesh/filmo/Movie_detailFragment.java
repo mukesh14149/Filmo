@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -43,22 +42,38 @@ public class Movie_detailFragment extends Fragment {
         View rootView =inflater.inflate(R.layout.fragment_movie_detail, container, false);
         Bundle b = getActivity().getIntent().getExtras();
         Movie movie = b.getParcelable("MOVIE");
-        ImageView view_Poster = (ImageView) rootView.findViewById(R.id.mPoster);
-        Picasso.with(getActivity()).load(movie.getPoster_path()).resize(10, 10).centerCrop().into(view_Poster);
-        ((TextView) rootView.findViewById(R.id.mSynopsis))
-                .setText(movie.getDescription());
 
-        ((TextView) rootView.findViewById(R.id.mTitle))
-                .setText(movie.getTitle());
+        int backdropWidth = Util.getScreenWidth(getActivity());
+        int backdropHeight = getResources().getDimensionPixelSize(R.dimen.details_backdrop_height);
+        ImageView view_Backdrop = (ImageView) rootView.findViewById(R.id.backdrop_image);
+        if(movie.getBackdrop_path().equals("empty"))
+            Picasso.with(getActivity()).load(R.drawable.posternotfound).into(view_Backdrop);
+        else
+            Picasso.with(getActivity()).load(movie.getBackdrop_path()).resize(backdropWidth, backdropHeight).centerCrop().into(view_Backdrop);
 
-        ((TextView) rootView.findViewById(R.id.mRating))
-                .setText(movie.getVote_average());
+        int posterWidth = getResources().getDimensionPixelSize(R.dimen.details_poster_width);
+        int posterHeight = getResources().getDimensionPixelSize(R.dimen.details_poster_height);
+        ImageView view_Poster = (ImageView) rootView.findViewById(R.id.poster_image);
+        if(movie.getPoster_path().equals("empty"))
+            Picasso.with(getActivity()).load(R.drawable.posternotfound).into(view_Backdrop);
+        else
+            Picasso.with(getActivity()).load(movie.getPoster_path()).resize(posterWidth ,posterHeight).centerCrop().into(view_Poster);
+
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(ConvertToDate(movie.getRelease_date()));
-
-        ((TextView) rootView.findViewById(R.id.mRelease))
+        ((TextView) rootView.findViewById(R.id.realease_date))
                 .setText(String.valueOf(calendar.get(Calendar.YEAR)));;
+
+        ((TextView) rootView.findViewById(R.id.description))
+                .setText(movie.getDescription());
+
+        ((TextView) rootView.findViewById(R.id.movie_title))
+                .setText(movie.getTitle());
+
+        ((TextView) rootView.findViewById(R.id.movie_rating))
+                .setText(movie.getVote_average());
+
         return rootView;
     }
 }

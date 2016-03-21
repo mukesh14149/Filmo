@@ -29,16 +29,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
     public GridView gridview;
-    private Movie[] movieList;
-    String Preference;
-    View rootView;
+    private Movie[] movieList;          //contains all movie trailer.
+    private String Preference;
+    private View rootView;
     public MainActivityFragment() {
     }
 
@@ -67,14 +66,16 @@ public class MainActivityFragment extends Fragment {
 
         rootView=inflater.inflate(R.layout.fragment_main, container, false);
 
+        //check whether Movies key is present in sharedpref.
         if (savedInstanceState == null || !savedInstanceState.containsKey("Movies")) {
             updateMovie(getActivity(),rootView);
             gridview = (GridView) rootView.findViewById(R.id.gridview);
         }
 
+        //if sharedpref already contain a key Movies
         else {
             movieList = (Movie[]) savedInstanceState.getParcelableArray("Movies");
-            String[] movie_list = new String[movieList.length];
+            String[] movie_list = new String[movieList.length];     //Image path of movie poster.
             for (int i = 0; i < movieList.length; i++) {
                 movie_list[i] = movieList[i].getPoster_path();
             }
@@ -87,7 +88,6 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Movie movie = movieList[position];
-
                 Intent intent = new Intent(getActivity().getApplication(), Movie_detail.class);
                 Bundle b = new Bundle();
                 b.putParcelable("MOVIE", movie);
@@ -102,7 +102,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateMovie(getActivity(),rootView);
+        updateMovie(getActivity(),rootView);    //whenever activity start it will update the content.
     }
 
     @Override
@@ -112,23 +112,23 @@ public class MainActivityFragment extends Fragment {
         super.onSaveInstanceState(saving_State);
     }
     private void updateMovie(Context context, View rootView){
+        //If internet is available
         if(Is_Online()==true) {
             FetchMovieData updateMovies = new FetchMovieData(context,rootView);
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-            Preference = sharedPref.getString("pref_order", "popularity.desc");
-
+            Preference = sharedPref.getString(getString(R.string.pref_order), getString(R.string.pref_popularity));
             updateMovies.execute(Preference);
         }
         else
         {
-            Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Device Not Connected to the Internet.",
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(), getString(R.string.offline_message),
                     Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
             toast.show();
         }
     }
 
-
+    //Async class to fetch data from server.
     public class FetchMovieData extends AsyncTask<String, Void, Movie[]>{
         private Context mContext;
         private View rootView;
@@ -140,7 +140,7 @@ public class MainActivityFragment extends Fragment {
         }
 
         public Movie[]  get_movie_data(String movie_json) throws JSONException{
-
+            //Fetch data in Json format and then fetch actual data.
             JSONObject movie_data = new JSONObject(movie_json);
             JSONArray results_array = movie_data.getJSONArray("results");
             Movie[] movieArray = new Movie[results_array.length()];
@@ -148,19 +148,18 @@ public class MainActivityFragment extends Fragment {
             for (int i = 0; i < results_array.length(); i++) {
 
                 JSONObject actual_movie = results_array.getJSONObject(i);
-
                 String id = actual_movie.getString("id");
                 String title = actual_movie.getString("title");
-                String poster_path = "http://image.tmdb.org/t/p/w342"+actual_movie.getString("poster_path");
-                String backdrop_path = "http://image.tmdb.org/t/p/original"+actual_movie.getString("backdrop_path");
                 String release = actual_movie.getString("release_date");
-
                 String popularity = actual_movie.getString("popularity");
-
                 String overview = actual_movie.getString("overview");
-
                 String vote_average = actual_movie.getString("vote_average");
-                Log.e(LOG_TAG,id+" "+title+" "+poster_path+" "+backdrop_path+" "+popularity+" "+release+overview+vote_average+" "+"dekhlo");
+                String poster_path = getString(R.string.poster_path)+actual_movie.getString("poster_path");
+                String backdrop_path = getString(R.string.backdrop_path)+actual_movie.getString("backdrop_path");
+
+                Log.e(LOG_TAG,poster_path+" adfkj yha ke"+ backdrop_path);
+
+                //create every movie poster to an object of Movie class.
                 Movie movies = new Movie(id, title, popularity, overview, poster_path,
                         vote_average, release,backdrop_path);
                 movieArray[i] = movies;
@@ -185,49 +184,45 @@ public class MainActivityFragment extends Fragment {
                 ImageAdapter adapter = new ImageAdapter(mContext,  image_url);
                 gridview.setAdapter(adapter);
             }
-
-
-
         }
 
         @Override
         protected Movie[] doInBackground(String... params) {
-            ArrayList<String> result=null;
             Movie[] movies=new Movie[0];
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-
             String movie_json = null;
 
 
             try {
-                Uri buildUri = Uri.parse("http://api.themoviedb.org/3/discover/movie?").buildUpon()
-                        .appendQueryParameter("sort_by", params[0])
-                        .appendQueryParameter("api_key", "1b198518f15a8813614d12b8df36bd7a")
+                Uri buildUri = Uri.parse(getString(R.string.movie_url)).buildUpon()
+                        .appendQueryParameter(getString(R.string.sort_by), params[0])
+                        .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
                         .build();
                 Log.e(LOG_TAG,buildUri.toString());
                 URL url = new URL(buildUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestMethod(getString(R.string.request_method));
                 urlConnection.connect();
+
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
-                if (inputStream == null)
-                {
+
+                if(inputStream == null)
                     movie_json= null;
-                }
+
                 reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
+
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line + "\n");
                 }
-                if (buffer.length() == 0) {
+                if(buffer.length() == 0)
                     movie_json = null;
-                }
+
                 movie_json = buffer.toString();
                 movies=get_movie_data(movie_json);
-
 
             }catch (Exception e){
                 e.printStackTrace();
@@ -239,12 +234,11 @@ public class MainActivityFragment extends Fragment {
                     try {
                         reader.close();
                     } catch (final IOException e) {
-
+                        e.printStackTrace();
                     }
                 }
             }
             return movies;
-
         }
     }
 }

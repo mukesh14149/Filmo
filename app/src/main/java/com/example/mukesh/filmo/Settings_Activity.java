@@ -17,7 +17,7 @@ public class Settings_Activity extends PreferenceActivity
                                           String key) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        if (key.equals("Select Sort Preference")) {
+        if (key.equals(getString(R.string.sort_title))) {
             editor.putString(key, "");
         }
     }
