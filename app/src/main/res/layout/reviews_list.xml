@@ -4,5 +4,10 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:gravity="center_vertical"
-    android:id="@+id/reviews" />
+    android:id="@+id/reviews"
+    android:layout_marginTop="5dp"
+    android:textColor="@color/dark_red"
+    android:typeface="sans"
+    android:textStyle="italic"
+    android:textSize="15sp"/>
 
