@@ -1,15 +1,22 @@
 package com.example.mukesh.filmo;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -19,16 +26,24 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.example.mukesh.filmo.data.Movie_Contract;
+import com.example.mukesh.filmo.data.Storedata;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Vector;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -38,6 +53,7 @@ public class MainActivityFragment extends Fragment {
     private Movie[] movieList;          //contains all movie trailer.
     private String Preference;
     private View rootView;
+    private static final int REQUEST_WRITE_STORAGE = 112;
     public MainActivityFragment() {
     }
 
@@ -58,8 +74,51 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    //reload my activity with permission granted or use the features what required the permission
+                } else
+                {
+                    //Toast.makeText(parentActivity, "The app was not allowed to write to your storage. Hence, it cannot function properly. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+
+    }
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck!=PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_WRITE_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+
+        }
+
         final String LOG_TAG = FetchMovieData.class.getSimpleName();
         PreferenceManager.setDefaultValues(getActivity().getApplication(), R.xml.pref_general, true);
         FetchMovieData fetchMovieData;
@@ -68,12 +127,14 @@ public class MainActivityFragment extends Fragment {
 
         //check whether Movies key is present in sharedpref.
         if (savedInstanceState == null || !savedInstanceState.containsKey("Movies")) {
+            System.out.println("kya yhi aana likha ha");
             updateMovie(getActivity(),rootView);
             gridview = (GridView) rootView.findViewById(R.id.gridview);
         }
 
         //if sharedpref already contain a key Movies
         else {
+            System.out.println("ye duniya ye mahfill");
             movieList = (Movie[]) savedInstanceState.getParcelableArray("Movies");
             String[] movie_list = new String[movieList.length];     //Image path of movie poster.
             for (int i = 0; i < movieList.length; i++) {
@@ -81,7 +142,7 @@ public class MainActivityFragment extends Fragment {
             }
 
             gridview = (GridView) rootView.findViewById(R.id.gridview);
-            ImageAdapter adapter = new ImageAdapter(getActivity(), movie_list);
+            ImageAdapter adapter = new ImageAdapter(getActivity(), movie_list,1);
             gridview.setAdapter(adapter);
         }
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -113,18 +174,95 @@ public class MainActivityFragment extends Fragment {
     }
     private void updateMovie(Context context, View rootView){
         //If internet is available
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        Preference = sharedPref.getString(getString(R.string.pref_order), getString(R.string.pref_popularity));
         if(Is_Online()==true) {
             FetchMovieData updateMovies = new FetchMovieData(context,rootView);
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-            Preference = sharedPref.getString(getString(R.string.pref_order), getString(R.string.pref_popularity));
+            System.out.println("check out"+Preference);
+
             updateMovies.execute(Preference);
         }
         else
         {
-            Toast toast = Toast.makeText(getActivity().getApplicationContext(), getString(R.string.offline_message),
-                    Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
-            toast.show();
+            Cursor movieCursor;
+            if(Preference.equals("favourite")) {
+                movieCursor = getContext().getContentResolver().query(
+                        Movie_Contract.Movie_Entry.CONTENT_URI,
+                        null,
+                        Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE + " = ?",
+                        new String[]{"1"},
+                        null);
+            }
+            else {
+                movieCursor = getContext().getContentResolver().query(
+                        Movie_Contract.Movie_Entry.CONTENT_URI,
+                        null,
+                        null,
+                        null,
+                        null);
+            }
+            System.out.println("aj ka vijaar"+movieCursor.getColumnCount());
+            String[] movie_list = new String[movieCursor.getCount()];
+            Movie movies;
+            final Movie[] movieArray = new Movie[movieCursor.getCount()];
+
+            int j=0;
+            if (movieCursor.moveToFirst()) {
+                // int locationIdIndex =
+                do {
+                    String id=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID));
+                    String title=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_TITLE));
+                    String popularity=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POPULARITY));
+                    String overview=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_DESCRIPTION));
+                    String poster_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH));
+                    String release=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_RELEASEDATE));
+                    String favourite=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE));
+
+                    String backdrop_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_BACKDROPPATH));
+                    String vote_average=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_VOTEAVERAGE));
+
+
+
+                    movies = new Movie(id, title, popularity, overview, poster_path,
+                            vote_average, release,backdrop_path,Integer.parseInt(favourite));
+                    movieArray[j]=movies;
+                    movie_list[j]=Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342",""));
+                    j++;
+
+                    System.out.println(favourite);
+
+                      System.out.println("chkkk"+Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342","")));
+                }while (movieCursor.moveToNext());
+            }
+            movieCursor.close();
+
+            for(int i=0;i<movie_list.length;i++){
+                System.out.println(movie_list[i]);
+            }
+            gridview = (GridView) rootView.findViewById(R.id.gridview);
+            ImageAdapter adapter = new ImageAdapter(getActivity(), movie_list,0);
+            gridview.setAdapter(adapter);
+
+
+            gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View v,
+                                        int position, long id) {
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), getString(R.string.offline_message),
+                            Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
+                    toast.show();
+
+
+                    Movie movie = movieArray[position];
+                    Intent intent = new Intent(getActivity().getApplication(), Movie_detail.class);
+                    Bundle b = new Bundle();
+                    b.putParcelable("MOVIE", movie);
+                    intent.putExtras(b);
+                    startActivity(intent);
+
+                }
+            });
+
         }
     }
 
@@ -132,6 +270,7 @@ public class MainActivityFragment extends Fragment {
     public class FetchMovieData extends AsyncTask<String, Void, Movie[]>{
         private Context mContext;
         private View rootView;
+        public String preference;
 
         private final String LOG_TAG = FetchMovieData.class.getSimpleName();
         public  FetchMovieData(Context context, View rootView){
@@ -156,16 +295,59 @@ public class MainActivityFragment extends Fragment {
                 String vote_average = actual_movie.getString("vote_average");
                 String poster_path = getString(R.string.poster_path)+actual_movie.getString("poster_path");
                 String backdrop_path = getString(R.string.backdrop_path)+actual_movie.getString("backdrop_path");
+                String favourite="0";
+                //System.out.println("Mujhe dekhna ha"+actual_movie.getString("poster_path"));
+               // store_image(actual_movie.getString("poster_path"),poster_path)
 
-                Log.e(LOG_TAG,poster_path+" adfkj yha ke"+ backdrop_path);
+
+
+
+               // Log.d(LOG_TAG, " Complete. " + inserted + " Inserted");
+
+
+                    Movie movies = new Movie(id, title, popularity, overview, poster_path,
+                            vote_average, release, backdrop_path, 0);
+                    movieArray[i] = movies;
+
+
+
+
+               // Log.e(LOG_TAG,poster_path+" adfkj yha ke"+ backdrop_path);
 
                 //create every movie poster to an object of Movie class.
-                Movie movies = new Movie(id, title, popularity, overview, poster_path,
-                        vote_average, release,backdrop_path);
-                movieArray[i] = movies;
+
 
             }
             return movieArray;
+        }
+
+
+        public void fetchtrailer(String trailer_json, Movie movie) throws JSONException {
+            JSONObject movie_data = new JSONObject(trailer_json);
+            System.out.println("kya tum mujhe dekh skte ho" + trailer_json);
+            JSONArray results_array = movie_data.getJSONArray("results");
+
+            for (int i = 0; i < results_array.length(); i++) {
+
+                JSONObject result_object = results_array.getJSONObject(i);
+                movie.addvideo(result_object.getString("key")+" ");
+
+
+            }
+        }
+
+        public void fetchreviews(String revies_json,Movie movie) throws JSONException{
+            JSONObject movie_data = new JSONObject(revies_json);
+            System.out.println("kya tum mujhe dekh skte ho11" + revies_json);
+            JSONArray results_array = movie_data.getJSONArray("results");
+            for (int i = 0; i < results_array.length(); i++) {
+
+                JSONObject result_object = results_array.getJSONObject(i);
+                System.out.println(result_object.getString("author")+"I am serious"+result_object.getString("content"));
+                movie.addreview(result_object.getString("author"),result_object.getString("content"));
+
+
+            }
         }
         @Override
         protected void onPreExecute() {
@@ -181,60 +363,180 @@ public class MainActivityFragment extends Fragment {
                     image_url[i] = movies[i].getPoster_path();
                 }
                 GridView  gridview = (GridView) rootView.findViewById(R.id.gridview);
-                ImageAdapter adapter = new ImageAdapter(mContext,  image_url);
+                ImageAdapter adapter = new ImageAdapter(mContext,  image_url,1);
                 gridview.setAdapter(adapter);
+                if(preference.equals("favourite")==false) {
+                    Storedata storedata = new Storedata(mContext);
+                    storedata.execute(movies);
+                }
             }
+
         }
 
         @Override
         protected Movie[] doInBackground(String... params) {
             Movie[] movies=new Movie[0];
+            preference=params[0];
+            if(params[0].equals("favourite")){
+                Cursor movieCursor = getContext().getContentResolver().query(
+                        Movie_Contract.Movie_Entry.CONTENT_URI,
+                        null,
+                        Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE+ " = ?",
+                        new String[]{"1"},
+                        null);
 
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String movie_json = null;
 
-
-            try {
-                Uri buildUri = Uri.parse(getString(R.string.movie_url)).buildUpon()
-                        .appendQueryParameter(getString(R.string.sort_by), params[0])
-                        .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
-                        .build();
-                Log.e(LOG_TAG,buildUri.toString());
-                URL url = new URL(buildUri.toString());
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod(getString(R.string.request_method));
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-
-                if(inputStream == null)
-                    movie_json= null;
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
+             //   Movie[] moviearr = new Movie[movieCursor.getCount()];
+                movies=new Movie[movieCursor.getCount()];
+               int t=0;
+                if(movieCursor==null){
+                    System.out.println("jjjjjjjjjjjjjjj");
                 }
-                if(buffer.length() == 0)
-                    movie_json = null;
+                else
+                    System.out.println(movieCursor.getCount()+"mmmmmmmmm");
+                while(movieCursor.moveToNext()) {
+                    String id=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID));
+                    String title=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_TITLE));
+                    String popularity=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POPULARITY));
+                    String overview=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_DESCRIPTION));
+                    String poster_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH));
+                    String release=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_RELEASEDATE));
+                    String favourite=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE));
+                    String backdrop_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_BACKDROPPATH));
+                    String vote_average=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_VOTEAVERAGE));
+                    System.out.println("aaa"+id+title+popularity+overview+poster_path+release+favourite);
 
-                movie_json = buffer.toString();
-                movies=get_movie_data(movie_json);
+                    Movie movies1 = new Movie(id, title, popularity, overview, poster_path,
+                            vote_average, release, backdrop_path, 0);
+                    movies[t]=movies1;
+                    t++;
+                }
+               // System.out.println(movieCursor.getString(0)+"codechef");
 
-            }catch (Exception e){
-                e.printStackTrace();
-            }finally {
-                if (urlConnection != null) {
+                //movies=moviearr;
+                movieCursor.close();
+            }
+
+            else {
+
+
+                HttpURLConnection urlConnection = null;
+                BufferedReader reader = null;
+                String movie_json = null;
+                System.out.println(params[0] + "aaaaaaaaaaaaaaa");
+
+                try {
+                    Uri buildUri = Uri.parse(getString(R.string.movie_url) + "?").buildUpon()
+                            .appendQueryParameter(getString(R.string.sort_by), params[0])
+                            .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
+                            .build();
+                    Log.e(LOG_TAG, buildUri.toString());
+                    URL url = new URL(buildUri.toString());
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod(getString(R.string.request_method));
+                    urlConnection.connect();
+
+                    InputStream inputStream = urlConnection.getInputStream();
+                    StringBuffer buffer = new StringBuffer();
+
+                    if (inputStream == null)
+                        movie_json = null;
+
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        buffer.append(line + "\n");
+                    }
+                    if (buffer.length() == 0)
+                        movie_json = null;
+
+                    movie_json = buffer.toString();
+                   if(movies==null);
+                    movies = get_movie_data(movie_json);
                     urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
+                    reader.close();
+                    inputStream.close();
+
+                    for (int i = 0; i < movies.length; i++) {
+
+                        System.out.println("koi to rok loooooo");
+                        buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/videos?").buildUpon()
+                                .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
+                                .build();
+                        Log.e(LOG_TAG, buildUri.toString());
+                        url = new URL(buildUri.toString());
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod(getString(R.string.request_method));
+                        urlConnection.connect();
+
+                        inputStream = urlConnection.getInputStream();
+                        buffer = new StringBuffer();
+
+                        if (inputStream == null)
+                            movie_json = null;
+
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+
+
+                        while ((line = reader.readLine()) != null) {
+                            buffer.append(line + "\n");
+                        }
+                        if (buffer.length() == 0)
+                            movie_json = null;
+
+                        movie_json = buffer.toString();
+                        fetchtrailer(movie_json, movies[i]);
+                        urlConnection.disconnect();
                         reader.close();
-                    } catch (final IOException e) {
-                        e.printStackTrace();
+                        inputStream.close();
+                    }
+
+                    for (int i = 0; i < movies.length; i++) {
+
+                        System.out.println("koi to rok loooooo11");
+                        buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/reviews?").buildUpon()
+                                .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
+                                .build();
+                        Log.e(LOG_TAG, buildUri.toString());
+                        url = new URL(buildUri.toString());
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod(getString(R.string.request_method));
+                        urlConnection.connect();
+
+                        inputStream = urlConnection.getInputStream();
+                        buffer = new StringBuffer();
+
+                        if (inputStream == null)
+                            movie_json = null;
+
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+
+
+                        while ((line = reader.readLine()) != null) {
+                            buffer.append(line + "\n");
+                        }
+                        if (buffer.length() == 0)
+                            movie_json = null;
+
+                        movie_json = buffer.toString();
+                        fetchreviews(movie_json, movies[i]);
+
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (final IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

@@ -49,11 +49,32 @@
 
             <TextView
                 style="@style/SubRatingAppearance" />
-        </LinearLayout>
 
+
+        </LinearLayout>
+        <Button
+            android:layout_width="160dp"
+            android:layout_height="100dp"
+            android:text="Mark Favourite"
+            android:layout_below="@id/movie_rating"
+            android:id="@+id/fav"/>
         <TextView
             android:id="@+id/description"
             style="@style/MyTextAppearance" />
+
+        <ListView
+            android:id="@+id/reviews"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="click"
+            android:id="@+id/youtube"
+            android:onClick="youtube"/>
+
+
 
     </RelativeLayout>
 

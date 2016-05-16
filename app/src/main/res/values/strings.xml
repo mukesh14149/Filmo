@@ -12,12 +12,12 @@
 
     <string name="poster_path">http://image.tmdb.org/t/p/w342</string>
     <string name="backdrop_path">http://image.tmdb.org/t/p/original</string>
-    <string name="movie_url">http://api.themoviedb.org/3/discover/movie?</string>
+    <string name="movie_url">http://api.themoviedb.org/3/discover/movie</string>
 
 
     <string name="sort_by">sort_by</string>
     <string name="api_key">api_key</string>
-    <string name="api_value">Your_API_Key</string>
+    <string name="api_value">1b198518f15a8813614d12b8df36bd7a</string>
 
     <string name="request_method">GET</string>
     <string name="sort_title">Change Sorting Order</string>

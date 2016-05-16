@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mukesh.filmo">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -25,7 +26,13 @@
             android:name=".Movie_detail"
             android:label="@string/title_activity_movie_detail"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Settings_Activity"></activity>
+        <activity android:name=".Settings_Activity" />
+
+        <provider
+            android:name=".data.Movie_Provider"
+            android:authorities="com.example.mukesh.filmo.app" />
+
+        <activity android:name=".FragmentDemoActivity"></activity>
     </application>
 
 </manifest>

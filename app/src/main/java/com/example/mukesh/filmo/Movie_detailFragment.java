@@ -1,19 +1,38 @@
 package com.example.mukesh.filmo;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.mukesh.filmo.data.Movie_Contract;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -41,15 +60,23 @@ public class Movie_detailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView =inflater.inflate(R.layout.fragment_movie_detail, container, false);
         Bundle b = getActivity().getIntent().getExtras();
-        Movie movie = b.getParcelable("MOVIE");
+        final Movie movie = b.getParcelable("MOVIE");
+
+
+        System.out.println();
+
 
         int backdropWidth = Util.getScreenWidth(getActivity());
         int backdropHeight = getResources().getDimensionPixelSize(R.dimen.details_backdrop_height);
         ImageView view_Backdrop = (ImageView) rootView.findViewById(R.id.backdrop_image);
-        if(movie.getBackdrop_path().equals("empty"))
-            Picasso.with(getActivity()).load(R.drawable.posternotfound).into(view_Backdrop);
-        else
-            Picasso.with(getActivity()).load(movie.getBackdrop_path()).resize(backdropWidth, backdropHeight).centerCrop().into(view_Backdrop);
+        try {
+            if (movie.getBackdrop_path().equals("empty"))
+                Picasso.with(getActivity()).load(R.drawable.posternotfound).into(view_Backdrop);
+            else
+                Picasso.with(getActivity()).load(movie.getBackdrop_path()).resize(backdropWidth, backdropHeight).centerCrop().into(view_Backdrop);
+        }catch (Exception e){
+
+        }
 
         int posterWidth = getResources().getDimensionPixelSize(R.dimen.details_poster_width);
         int posterHeight = getResources().getDimensionPixelSize(R.dimen.details_poster_height);
@@ -74,6 +101,194 @@ public class Movie_detailFragment extends Fragment {
         ((TextView) rootView.findViewById(R.id.movie_rating))
                 .setText(movie.getVote_average());
 
+        int total=0;
+        List<String> review_key = new ArrayList<String>();
+        List<String> review_value = new ArrayList<String>();
+        for(Map.Entry key:movie.getReview().entrySet()){
+            review_key.add(key.getKey().toString());
+            review_value.add(key.getValue().toString());
+            if(total==2)
+                break;
+            total++;
+        }
+
+
+        ArrayAdapter<String> reviews1,reviews2;
+        reviews1 =
+                new ArrayAdapter<String>(
+                        getActivity(), // The current context (this activity)
+                        R.layout.reviews_list, // The name of the layout ID.
+                        R.id.reviews, // The ID of the textview to populate.
+                        review_value);
+
+
+
+
+
+        ListView listView = (ListView) rootView.findViewById(R.id.reviews);
+        listView.setAdapter(reviews1);
+
+        final ContentValues values = new ContentValues();
+        values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "1");
+        final String[] selectionArgs = { String.valueOf(movie.getId()) };
+
+       /* Cursor movieCursor = getContext().getContentResolver().query(
+                Movie_Contract.Movie_Entry.CONTENT_URI,
+                null,
+                Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+ " = ?",
+                new String[]{movie.getId()},
+                null);
+*/
+        System.out.println("yo yo i am here");
+      //  System.out.println(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE)));
+
+     //   movie.setFavourite(Integer.parseInt(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE))));
+        String favourite="0";
+        Cursor movieCursor = getContext().getContentResolver().query(
+                Movie_Contract.Movie_Entry.CONTENT_URI,
+                new String[]{Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE},
+                Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+ " = ?",
+                new String[]{movie.getId()},
+                null);
+        if(movieCursor!=null) {
+         while(movieCursor.moveToNext()) {
+             System.out.println("happy" + movieCursor.getString(0));
+             movie.setFavourite(Integer.parseInt(movieCursor.getString(0)));
+             favourite=movieCursor.getString(0);
+             System.out.println(movie.getFavourite());
+             break;
+         }
+        }
+        //System.out.println("aj ka vijaar"+movieCursor.getColumnCount());
+       /* String[] movie_list = new String[movieCursor.getCount()];
+        Movie movies;
+        final Movie[] movieArray = new Movie[movieCursor.getCount()];
+
+        int j=0;
+        String favourite="0";
+        if (movieCursor.moveToFirst()) {
+            // int locationIdIndex =
+            do {
+                String id=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID));
+                String title=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_TITLE));
+                String popularity=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POPULARITY));
+                String overview=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_DESCRIPTION));
+                String poster_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH));
+                String release=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_RELEASEDATE));
+                String afavourite=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE));
+                //movies = new Movie(id, title, popularity, overview, poster_path,
+                     //   null, release,null,Integer.parseInt(favourite));
+               // movieArray[j]=movies;
+             //   movie_list[j]= Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342",""));
+                j++;
+                if(title.equals(movie.getTitle())) {
+                    System.out.println(title + "   " + afavourite);
+                    movie.setFavourite(Integer.parseInt(afavourite));
+                    favourite=afavourite;
+                }
+                //   System.out.println("chkkk"+Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342","")));
+            }while (movieCursor.moveToNext());
+        }
+        movieCursor.close();
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        System.out.println(favourite+"what is here");
+        final Button fav_button=((Button) rootView.findViewById(R.id.fav));;
+       if(favourite.equals("1"))
+            fav_button.setText("FAVOURITE");
+
+        if(favourite.equals("0"))
+            fav_button.setText("MARK FAVOURITE");
+
+        fav_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                System.out.println(movie.getFavourite()+"kya kr rha ha");
+                int key=movie.getFavourite();
+                if(key==0){
+                    System.out.println("kyuuuuuuuuuuuuuuu");
+                    fav_button.setText("Favourite");
+                    movie.setFavourite(1);
+                    values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "1");
+                    getContext().getContentResolver().update(
+                            Movie_Contract.Movie_Entry.CONTENT_URI,values,Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+" LIKE ?",selectionArgs);
+
+
+                }
+
+                if(key==1){
+                    fav_button.setText("Mark Favourite");
+                    movie.setFavourite(0);
+                    values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "0");
+                    getContext().getContentResolver().update(
+                            Movie_Contract.Movie_Entry.CONTENT_URI,values,Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+" LIKE ?",selectionArgs);
+
+                }
+
+            }
+        });
+
+        HashMap<String,String> hashMap=movie.getReview();
+        for (String name: hashMap.keySet()){
+
+            String key =name.toString();
+            String value = hashMap.get(name).toString();
+            System.out.println(key + " sitaaro ki duniya" + value);
+        }
+        final String videourl[];
+        try {
+            videourl=movie.getVideourl().split(" ");
+            Button button=(Button) rootView.findViewById(R.id.youtube);
+            button.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), FragmentDemoActivity.class);
+                    intent.putExtra(Intent.EXTRA_TEXT,videourl[0]);
+                    startActivity(intent);
+                    //your Code Goes Herehttps://www.codechef.com/ZCOPRAC/problems/ZCO14003
+                }
+            });
+        }catch (Exception e){
+            Button button=(Button) rootView.findViewById(R.id.youtube);
+            button.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), getString(R.string.offline_message),
+                            Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
+                    toast.show();
+                    //your Code Goes Herehttps://www.codechef.com/ZCOPRAC/problems/ZCO14003
+                }
+            });
+        }
+
+
+        movieCursor.close();
         return rootView;
     }
+
 }

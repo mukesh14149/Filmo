@@ -25,4 +25,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev171-1.22.0'
+    compile files('libs/YouTubeAndroidPlayerApi.jar')
+
 }
