@@ -1,9 +1,12 @@
 package com.example.mukesh.filmo;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -55,6 +58,23 @@ public class Movie_detailFragment extends Fragment {
         return convertedDate;
     }
 
+    public boolean Is_Online(){
+        System.out.println("comein");
+        ConnectivityManager connectivity = (ConnectivityManager)getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null)
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+
+        }
+        return false;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,7 +97,11 @@ public class Movie_detailFragment extends Fragment {
         }
 
         System.out.println();
+        if(movie.getVideourl()==null&& Is_Online()){
+            Fetch_review_and_trailer review_and_trailer=new Fetch_review_and_trailer(getContext(),getString(R.string.api_key),getString(R.string.api_value),getString(R.string.request_method));
+            review_and_trailer.execute(movie);
 
+        }
 
         int backdropWidth = Util.getScreenWidth(getActivity());
         int backdropHeight = getResources().getDimensionPixelSize(R.dimen.details_backdrop_height);
@@ -94,11 +118,14 @@ public class Movie_detailFragment extends Fragment {
         int posterWidth = getResources().getDimensionPixelSize(R.dimen.details_poster_width);
         int posterHeight = getResources().getDimensionPixelSize(R.dimen.details_poster_height);
         ImageView view_Poster = (ImageView) rootView.findViewById(R.id.poster_image);
-        if(movie.getPoster_path().equals("empty"))
+        if(movie.getPoster_path().equals("empty")) {
             Picasso.with(getActivity()).load(R.drawable.posternotfound).into(view_Backdrop);
-        else
-            Picasso.with(getActivity()).load(movie.getPoster_path()).resize(posterWidth ,posterHeight).centerCrop().into(view_Poster);
-
+            System.out.println("askdjfgggggg");
+        }
+        else {
+            Picasso.with(getActivity()).load(movie.getPoster_path()).resize(posterWidth, posterHeight).centerCrop().into(view_Poster);
+            System.out.println("askdjf");
+        }
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(ConvertToDate(movie.getRelease_date()));

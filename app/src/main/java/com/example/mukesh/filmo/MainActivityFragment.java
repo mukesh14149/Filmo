@@ -325,33 +325,7 @@ public class MainActivityFragment extends Fragment {
         }
 
 
-        public void fetchtrailer(String trailer_json, Movie movie) throws JSONException {
-            JSONObject movie_data = new JSONObject(trailer_json);
 
-            JSONArray results_array = movie_data.getJSONArray("results");
-
-            for (int i = 0; i < results_array.length(); i++) {
-
-                JSONObject result_object = results_array.getJSONObject(i);
-                movie.addvideo(result_object.getString("key")+" ");
-
-
-            }
-        }
-
-        public void fetchreviews(String revies_json,Movie movie) throws JSONException{
-            JSONObject movie_data = new JSONObject(revies_json);
-
-            JSONArray results_array = movie_data.getJSONArray("results");
-            for (int i = 0; i < results_array.length(); i++) {
-
-                JSONObject result_object = results_array.getJSONObject(i);
-                System.out.println(result_object.getString("author")+"I am serious"+result_object.getString("content"));
-                movie.addreview(result_object.getString("author"),result_object.getString("content"));
-
-
-            }
-        }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -368,6 +342,10 @@ public class MainActivityFragment extends Fragment {
                 GridView  gridview = (GridView) rootView.findViewById(R.id.gridview);
                 ImageAdapter adapter = new ImageAdapter(mContext,  image_url,1);
                 gridview.setAdapter(adapter);
+                Fetch_review_and_trailer review_and_trailer=new Fetch_review_and_trailer(mContext,getString(R.string.api_key),getString(R.string.api_value),getString(R.string.request_method));
+                review_and_trailer.execute(movies);
+
+
                 if(preference.equals("favourite")==false) {
                     Storedata storedata = new Storedata(mContext);
                     storedata.execute(movies);
@@ -457,75 +435,9 @@ public class MainActivityFragment extends Fragment {
                     movie_json = buffer.toString();
                    if(movies==null);
                     movies = get_movie_data(movie_json);
-                    urlConnection.disconnect();
-                    reader.close();
-                    inputStream.close();
-
-                    for (int i = 0; i < movies.length; i++) {
 
 
-                        buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/videos?").buildUpon()
-                                .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
-                                .build();
-                        Log.e(LOG_TAG, buildUri.toString());
-                        url = new URL(buildUri.toString());
-                        urlConnection = (HttpURLConnection) url.openConnection();
-                        urlConnection.setRequestMethod(getString(R.string.request_method));
-                        urlConnection.connect();
 
-                        inputStream = urlConnection.getInputStream();
-                        buffer = new StringBuffer();
-
-                        if (inputStream == null)
-                            movie_json = null;
-
-                        reader = new BufferedReader(new InputStreamReader(inputStream));
-
-
-                        while ((line = reader.readLine()) != null) {
-                            buffer.append(line + "\n");
-                        }
-                        if (buffer.length() == 0)
-                            movie_json = null;
-
-                        movie_json = buffer.toString();
-                        fetchtrailer(movie_json, movies[i]);
-                        urlConnection.disconnect();
-                        reader.close();
-                        inputStream.close();
-                    }
-
-                    for (int i = 0; i < movies.length; i++) {
-
-
-                        buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/reviews?").buildUpon()
-                                .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
-                                .build();
-                        Log.e(LOG_TAG, buildUri.toString());
-                        url = new URL(buildUri.toString());
-                        urlConnection = (HttpURLConnection) url.openConnection();
-                        urlConnection.setRequestMethod(getString(R.string.request_method));
-                        urlConnection.connect();
-
-                        inputStream = urlConnection.getInputStream();
-                        buffer = new StringBuffer();
-
-                        if (inputStream == null)
-                            movie_json = null;
-
-                        reader = new BufferedReader(new InputStreamReader(inputStream));
-
-
-                        while ((line = reader.readLine()) != null) {
-                            buffer.append(line + "\n");
-                        }
-                        if (buffer.length() == 0)
-                            movie_json = null;
-
-                        movie_json = buffer.toString();
-                        fetchreviews(movie_json, movies[i]);
-
-                    }
 
 
                 } catch (Exception e) {
