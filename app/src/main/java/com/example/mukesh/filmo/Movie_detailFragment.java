@@ -68,7 +68,7 @@ public class Movie_detailFragment extends Fragment {
            movie = b.getParcelable("MOVIE");
 
 
-        System.out.println("tripute2"+movie.getTitle());
+      //  System.out.println("tripute2"+movie.getTitle());
 
         if (movie != null) {
             rootView.findViewById(R.id.detailfragment).setVisibility(View.VISIBLE);
@@ -203,7 +203,7 @@ public class Movie_detailFragment extends Fragment {
                 System.out.println(movief.getFavourite()+"kya kr rha ha");
                 int key=movief.getFavourite();
                 if(key==0){
-                    System.out.println("kyuuuuuuuuuuuuuuu");
+
                     fav_button.setText("Favourite");
                     movief.setFavourite(1);
                     values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "1");
@@ -230,7 +230,7 @@ public class Movie_detailFragment extends Fragment {
 
             String key =name.toString();
             String value = hashMap.get(name).toString();
-            System.out.println(key + " sitaaro ki duniya" + value);
+
         }
         final String videourl[];
         try {

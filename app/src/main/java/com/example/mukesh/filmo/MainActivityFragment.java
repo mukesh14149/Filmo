@@ -133,14 +133,14 @@ public class MainActivityFragment extends Fragment {
 
         //check whether Movies key is present in sharedpref.
         if (savedInstanceState == null || !savedInstanceState.containsKey("Movies")) {
-            System.out.println("kya yhi aana likha ha");
+
             updateMovie(getActivity(),rootView);
             gridview = (GridView) rootView.findViewById(R.id.gridview);
         }
 
         //if sharedpref already contain a key Movies
         else {
-            System.out.println("ye duniya ye mahfill");
+
             movieList = (Movie[]) savedInstanceState.getParcelableArray("Movies");
             String[] movie_list = new String[movieList.length];     //Image path of movie poster.
             for (int i = 0; i < movieList.length; i++) {
@@ -327,7 +327,7 @@ public class MainActivityFragment extends Fragment {
 
         public void fetchtrailer(String trailer_json, Movie movie) throws JSONException {
             JSONObject movie_data = new JSONObject(trailer_json);
-            System.out.println("kya tum mujhe dekh skte ho" + trailer_json);
+
             JSONArray results_array = movie_data.getJSONArray("results");
 
             for (int i = 0; i < results_array.length(); i++) {
@@ -341,7 +341,7 @@ public class MainActivityFragment extends Fragment {
 
         public void fetchreviews(String revies_json,Movie movie) throws JSONException{
             JSONObject movie_data = new JSONObject(revies_json);
-            System.out.println("kya tum mujhe dekh skte ho11" + revies_json);
+
             JSONArray results_array = movie_data.getJSONArray("results");
             for (int i = 0; i < results_array.length(); i++) {
 
@@ -463,7 +463,7 @@ public class MainActivityFragment extends Fragment {
 
                     for (int i = 0; i < movies.length; i++) {
 
-                        System.out.println("koi to rok loooooo");
+
                         buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/videos?").buildUpon()
                                 .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
                                 .build();
@@ -497,7 +497,7 @@ public class MainActivityFragment extends Fragment {
 
                     for (int i = 0; i < movies.length; i++) {
 
-                        System.out.println("koi to rok loooooo11");
+
                         buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/reviews?").buildUpon()
                                 .appendQueryParameter(getString(R.string.api_key), getString(R.string.api_value))
                                 .build();
