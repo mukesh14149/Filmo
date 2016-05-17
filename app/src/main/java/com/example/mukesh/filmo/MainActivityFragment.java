@@ -61,9 +61,7 @@ public class MainActivityFragment extends Fragment {
         void onItemSelected(Movie movie);
     }
 
-
     public boolean Is_Online(){
-
         ConnectivityManager connectivity = (ConnectivityManager)getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null)
         {
@@ -74,7 +72,6 @@ public class MainActivityFragment extends Fragment {
                     {
                         return true;
                     }
-
         }
         return false;
     }
@@ -140,17 +137,16 @@ public class MainActivityFragment extends Fragment {
 
         //if sharedpref already contain a key Movies
         else {
-
             movieList = (Movie[]) savedInstanceState.getParcelableArray("Movies");
             String[] movie_list = new String[movieList.length];     //Image path of movie poster.
             for (int i = 0; i < movieList.length; i++) {
                 movie_list[i] = movieList[i].getPoster_path();
             }
-
             gridview = (GridView) rootView.findViewById(R.id.gridview);
             ImageAdapter adapter = new ImageAdapter(getActivity(), movie_list,1);
             gridview.setAdapter(adapter);
         }
+
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -181,14 +177,12 @@ public class MainActivityFragment extends Fragment {
         Preference = sharedPref.getString(getString(R.string.pref_order), getString(R.string.pref_popularity));
         if(Is_Online()==true) {
             FetchMovieData updateMovies = new FetchMovieData(context,rootView);
-            System.out.println("check out"+Preference);
-
             updateMovies.execute(Preference);
         }
         else
         {
             Cursor movieCursor;
-            if(Preference.equals("favourite")) {
+            if(Preference.equals(getString(R.string.favourite))) {
                 movieCursor = getContext().getContentResolver().query(
                         Movie_Contract.Movie_Entry.CONTENT_URI,
                         null,
@@ -204,7 +198,6 @@ public class MainActivityFragment extends Fragment {
                         null,
                         null);
             }
-            System.out.println("aj ka vijaar"+movieCursor.getColumnCount());
             String[] movie_list = new String[movieCursor.getCount()];
             Movie movies;
             final Movie[] movieArray = new Movie[movieCursor.getCount()];
@@ -224,24 +217,17 @@ public class MainActivityFragment extends Fragment {
                     String backdrop_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_BACKDROPPATH));
                     String vote_average=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_VOTEAVERAGE));
 
-
-
                     movies = new Movie(id, title, popularity, overview, poster_path,
                             vote_average, release,backdrop_path,Integer.parseInt(favourite));
                     movieArray[j]=movies;
                     movie_list[j]=Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342",""));
                     j++;
 
-                    System.out.println(favourite);
-
-                      System.out.println("chkkk"+Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342","")));
                 }while (movieCursor.moveToNext());
             }
             movieCursor.close();
 
-            for(int i=0;i<movie_list.length;i++){
-                System.out.println(movie_list[i]);
-            }
+
             gridview = (GridView) rootView.findViewById(R.id.gridview);
             ImageAdapter adapter = new ImageAdapter(getActivity(), movie_list,0);
             gridview.setAdapter(adapter);
@@ -254,7 +240,6 @@ public class MainActivityFragment extends Fragment {
                             Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
                     toast.show();
-
 
                     Movie movie = movieArray[position];
                     Intent intent = new Intent(getActivity().getApplication(), Movie_detail.class);
@@ -299,32 +284,13 @@ public class MainActivityFragment extends Fragment {
                 String poster_path = getString(R.string.poster_path)+actual_movie.getString("poster_path");
                 String backdrop_path = getString(R.string.backdrop_path)+actual_movie.getString("backdrop_path");
                 String favourite="0";
-                //System.out.println("Mujhe dekhna ha"+actual_movie.getString("poster_path"));
-               // store_image(actual_movie.getString("poster_path"),poster_path)
 
-
-
-
-               // Log.d(LOG_TAG, " Complete. " + inserted + " Inserted");
-
-
-                    Movie movies = new Movie(id, title, popularity, overview, poster_path,
-                            vote_average, release, backdrop_path, 0);
-                    movieArray[i] = movies;
-
-
-
-
-               // Log.e(LOG_TAG,poster_path+" adfkj yha ke"+ backdrop_path);
-
-                //create every movie poster to an object of Movie class.
-
+                Movie movies = new Movie(id, title, popularity, overview, poster_path, vote_average, release, backdrop_path, 0);
+                movieArray[i] = movies;
 
             }
             return movieArray;
         }
-
-
 
         @Override
         protected void onPreExecute() {
@@ -345,7 +311,6 @@ public class MainActivityFragment extends Fragment {
                 Fetch_review_and_trailer review_and_trailer=new Fetch_review_and_trailer(mContext,getString(R.string.api_key),getString(R.string.api_value),getString(R.string.request_method));
                 review_and_trailer.execute(movies);
 
-
                 if(preference.equals("favourite")==false) {
                     Storedata storedata = new Storedata(mContext);
                     storedata.execute(movies);
@@ -358,7 +323,7 @@ public class MainActivityFragment extends Fragment {
         protected Movie[] doInBackground(String... params) {
             Movie[] movies=new Movie[0];
             preference=params[0];
-            if(params[0].equals("favourite")){
+            if(params[0].equals(getString(R.string.favourite))){
                 Cursor movieCursor = getContext().getContentResolver().query(
                         Movie_Contract.Movie_Entry.CONTENT_URI,
                         null,
@@ -366,15 +331,16 @@ public class MainActivityFragment extends Fragment {
                         new String[]{"1"},
                         null);
 
-
-             //   Movie[] moviearr = new Movie[movieCursor.getCount()];
                 movies=new Movie[movieCursor.getCount()];
-               int t=0;
+                int t=0;
                 if(movieCursor==null){
-                    System.out.println("jjjjjjjjjjjjjjj");
+                    Toast toast = Toast.makeText(getActivity().getApplicationContext(), getString(R.string.Favourite_message),
+                            Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.BOTTOM|Gravity.CENTER, 0, 10);
+                    toast.show();
                 }
                 else
-                    System.out.println(movieCursor.getCount()+"mmmmmmmmm");
+
                 while(movieCursor.moveToNext()) {
                     String id=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID));
                     String title=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_TITLE));
@@ -385,26 +351,21 @@ public class MainActivityFragment extends Fragment {
                     String favourite=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE));
                     String backdrop_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_BACKDROPPATH));
                     String vote_average=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_VOTEAVERAGE));
-                    System.out.println("aaa"+id+title+popularity+overview+poster_path+release+favourite);
 
                     Movie movies1 = new Movie(id, title, popularity, overview, poster_path,
                             vote_average, release, backdrop_path, 0);
                     movies[t]=movies1;
                     t++;
                 }
-               // System.out.println(movieCursor.getString(0)+"codechef");
 
-                //movies=moviearr;
                 movieCursor.close();
             }
 
             else {
 
-
                 HttpURLConnection urlConnection = null;
                 BufferedReader reader = null;
                 String movie_json = null;
-                System.out.println(params[0] + "aaaaaaaaaaaaaaa");
 
                 try {
                     Uri buildUri = Uri.parse(getString(R.string.movie_url) + "?").buildUpon()
@@ -435,10 +396,6 @@ public class MainActivityFragment extends Fragment {
                     movie_json = buffer.toString();
                    if(movies==null);
                     movies = get_movie_data(movie_json);
-
-
-
-
 
                 } catch (Exception e) {
                     e.printStackTrace();

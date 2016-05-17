@@ -13,7 +13,6 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="title_style" parent="TextAppearance.AppCompat">
@@ -84,20 +83,64 @@
         <item name="android:typeface">serif</item>
     </style>
 
-
-    <style name="ButtonText">
+    <style name="Favourite">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#ffffff</item>
+        <item name="android:layout_marginLeft">@dimen/margin_200</item>
+        <item name="android:layout_marginTop">@dimen/margin_220</item>
+        <item name="android:layout_below">@id/movie_title</item>
+        <item name="android:background">@drawable/btn</item>
+        <item name="android:text">@string/Favourite_unselected</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:gravity">center</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">@dimen/text_medium</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowColor">@color/black</item>
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">2</item>
     </style>
 
+    <style name="horizontal_line">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">@dimen/margin_low</item>
+        <item name="android:background">@color/blackish</item>
+    </style>
 
+    <style name="reviews_container">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_below">@id/revies_heading</item>
+    </style>
+
+    <style name="reviews">
+        <item name="android:layout_width">match_parent</item>
+        <item name= "android:layout_height">match_parent</item>
+        <item name="android:layout_below">@id/horizontal</item>
+        <item name="android:layout_marginTop">@dimen/margin_5</item>
+        <item name="android:text">@string/Review_heading</item>
+        <item name="android:textColor">@color/dark_red</item>
+        <item name="android:typeface">serif</item>
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+    <style name="Trailer">
+        <item name="android:layout_width">@dimen/details_poster_width</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:onClick">@string/youtube</item>
+        <item name="android:layout_marginLeft">@dimen/margin_105</item>
+        <item name="android:layout_marginTop">@dimen/zero_dim</item>
+        <item name="android:layout_below">@id/rating_container</item>
+        <item name="android:background">@drawable/btn</item>
+        <item name="android:text">@string/Trailer_heading</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">@color/black</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
 
 </resources>

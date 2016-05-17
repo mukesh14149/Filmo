@@ -11,12 +11,11 @@ public class Movie_detail extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("tripute111"+savedInstanceState);
-            setContentView(R.layout.activity_movie_detail);
+
+        setContentView(R.layout.activity_movie_detail);
         if (savedInstanceState == null) {
             Bundle b = getIntent().getExtras();
             final Movie movie = b.getParcelable("MOVIE");
-            System.out.println("tripute3"+movie.getTitle());
             Bundle bundle = new Bundle();
             bundle.putParcelable("MOVIE",
                     getIntent().getParcelableExtra("MOVIE"));

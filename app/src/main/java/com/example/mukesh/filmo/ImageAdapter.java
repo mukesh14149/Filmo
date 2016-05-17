@@ -56,8 +56,6 @@ public class ImageAdapter extends BaseAdapter {
         } else {
             imageView = (ImageView) convertView;
         }
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),image_url[position].replace("http://image.tmdb.org/t/p/w342/",""));
-        //IF Image_url array contain null then assign it a default poster.
 
         if(connectivity==1) {
             if (image_url[position] == "empty") {
@@ -70,20 +68,11 @@ public class ImageAdapter extends BaseAdapter {
         }
         else
             Picasso.with(mContext).load(new File(image_url[position])).into(imageView);
-
-
-        final String LOG_TAG="asdf";
-        Log.d(LOG_TAG, " Complete.11 "  + " Insertedddddd");
-
-
-
-
         return imageView;
     }
     public String store_image(Context context,String path){
-        System.out.println("main ander huuuu" +path);
-        final String imagepath=path;
 
+        final String imagepath=path;
         //Define target point
         Target target = new Target() {
             @Override
@@ -94,10 +83,7 @@ public class ImageAdapter extends BaseAdapter {
                     public void run() {
 
                         File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),imagepath.replace("http://image.tmdb.org/t/p/w342/",""));
-
-                        System.out.println("kha ha path"+Environment.getExternalStorageDirectory().getAbsolutePath() + "/save.jpg");
                         try {
-
                             file.createNewFile();
                             FileOutputStream ostream = new FileOutputStream(file);
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, ostream);
@@ -124,10 +110,5 @@ public class ImageAdapter extends BaseAdapter {
                 .into(target);
         return  null;
     }
-    // references to our images
-    private String[] mThumbIds = {
-            "https://www.planwallpaper.com/static/images/9-credit-1.jpg", "https://www.planwallpaper.com/static/images/9-credit-1.jpg",
-           "https://www.planwallpaper.com/static/images/9-credit-1.jpg"
-    };
 
 }

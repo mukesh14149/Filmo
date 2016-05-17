@@ -34,34 +34,24 @@ public class Fetch_review_and_trailer extends AsyncTask<Movie, Void, Void> {
 
     public void fetchtrailer(String trailer_json, Movie movie) throws JSONException {
         JSONObject movie_data = new JSONObject(trailer_json);
-
         JSONArray results_array = movie_data.getJSONArray("results");
-
         for (int i = 0; i < results_array.length(); i++) {
-
             JSONObject result_object = results_array.getJSONObject(i);
             movie.addvideo(result_object.getString("key")+" ");
-
-
         }
     }
 
     public void fetchreviews(String revies_json,Movie movie) throws JSONException{
         JSONObject movie_data = new JSONObject(revies_json);
-
         JSONArray results_array = movie_data.getJSONArray("results");
         for (int i = 0; i < results_array.length(); i++) {
-
             JSONObject result_object = results_array.getJSONObject(i);
             System.out.println(result_object.getString("author")+"I am serious"+result_object.getString("content"));
             movie.addreview(result_object.getString("author"),result_object.getString("content"));
-
-
         }
     }
     @Override
     protected Void doInBackground(Movie... movies) {
-
         Uri buildUri;
         URL url;
         HttpURLConnection urlConnection = null;
@@ -71,20 +61,14 @@ public class Fetch_review_and_trailer extends AsyncTask<Movie, Void, Void> {
         String line;
         StringBuffer buffer = new StringBuffer();
         try {
-
-
             for (int i = 0; i < movies.length; i++) {
-
-
                 buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/videos?").buildUpon()
                         .appendQueryParameter(api_key, api_value)
                         .build();
-                // Log.e(LOG_TAG, buildUri.toString());
                 url = new URL(buildUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod(request_method);
                 urlConnection.connect();
-
                 inputStream = urlConnection.getInputStream();
                 buffer = new StringBuffer();
 
@@ -92,7 +76,6 @@ public class Fetch_review_and_trailer extends AsyncTask<Movie, Void, Void> {
                     movie_json = null;
 
                 reader = new BufferedReader(new InputStreamReader(inputStream));
-
 
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line + "\n");
@@ -108,12 +91,9 @@ public class Fetch_review_and_trailer extends AsyncTask<Movie, Void, Void> {
             }
 
             for (int i = 0; i < movies.length; i++) {
-
-
                 buildUri = Uri.parse("http://api.themoviedb.org/3/movie" + "/" + movies[i].getId() + "/reviews?").buildUpon()
                         .appendQueryParameter(api_key, api_value)
                         .build();
-               // Log.e(LOG_TAG, buildUri.toString());
                 url = new URL(buildUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod(request_method);
@@ -126,7 +106,6 @@ public class Fetch_review_and_trailer extends AsyncTask<Movie, Void, Void> {
                     movie_json = null;
 
                 reader = new BufferedReader(new InputStreamReader(inputStream));
-
 
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line + "\n");
@@ -152,8 +131,6 @@ public class Fetch_review_and_trailer extends AsyncTask<Movie, Void, Void> {
                 }
             }
         }
-
-
         return null;
     }
 }

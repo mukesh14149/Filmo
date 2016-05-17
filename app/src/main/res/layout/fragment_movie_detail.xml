@@ -7,47 +7,31 @@
 
     <RelativeLayout
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/frag_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/margin_large"
-        android:id="@+id/frag_container"
         tools:context="com.example.mukesh.filmo.Movie_detailFragment">
 
         <TextView
             android:id="@+id/movie_title"
-            style="@style/title_style" />
+            style="@style/title_style"/>
 
+        <ImageView
+            android:id="@+id/backdrop_image"
+            style="@style/backdrop_style"/>
 
-            <ImageView
-                android:id="@+id/backdrop_image"
-                style="@style/backdrop_style"/>
-
-
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mark Favourite"
-                android:layout_marginLeft="200dp"
-                android:layout_marginTop="220dp"
-                android:layout_below="@id/movie_title"
-                style="@style/ButtonText"
-                android:background="@drawable/btn"
-                android:id="@+id/fav"/>
-
-
-
+        <Button
+            android:id="@+id/fav"
+            style="@style/Favourite"/>
 
         <ImageView
             android:id="@+id/poster_image"
-            style="@style/poster_style" />
-
-
-
+            style="@style/poster_style"/>
 
         <TextView
             android:id="@+id/realease_date"
-            style="@style/realease_date_style" />
+            style="@style/realease_date_style"/>
 
         <LinearLayout
             android:id="@+id/rating_container"
@@ -68,69 +52,35 @@
                 style="@style/movie_rating_style"/>
 
             <TextView
-                style="@style/SubRatingAppearance" />
-
+                style="@style/SubRatingAppearance"/>
 
         </LinearLayout>
 
         <Button
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:text="Watch Trailer"
             android:id="@+id/youtube"
-            android:onClick="youtube"
-            android:layout_marginLeft="105dp"
-            android:layout_marginTop="0dp"
-            android:layout_below="@id/rating_container"
-            style="@style/ButtonText"
-            android:background="@drawable/btn"/>
+            style="@style/Trailer"/>
 
         <View
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"
-            android:layout_below="@+id/youtube"
             android:id="@+id/horizontal1"
-            />
+            style="@style/horizontal_line"
+            android:layout_below="@+id/youtube"/>
 
         <TextView
             android:id="@+id/description"
-            style="@style/MyTextAppearance" />
-
-
-
+            style="@style/MyTextAppearance"/>
 
         <View
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"
-            android:layout_below="@+id/description"
-            android:id="@+id/horizontal"/>
-
+            android:id="@+id/horizontal"
+            style="@style/horizontal_line"
+            android:layout_below="@+id/description" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:text="Reviews:"
-            android:textColor="@color/dark_red"
-            android:typeface="serif"
-            android:textSize="@dimen/text_large"
             android:id="@+id/revies_heading"
-
-            android:layout_below="@id/horizontal"
-            />
-
+            style="@style/reviews"/>
 
         <ListView
             android:id="@+id/reviews"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/revies_heading"/>
-
-
-
-
+            style="@style/reviews_container"/>
 
     </RelativeLayout>
 

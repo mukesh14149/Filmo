@@ -26,10 +26,8 @@ public class Storedata extends AsyncTask<Movie, Void, Void> {
     @Override
     protected Void doInBackground(Movie... params) {
 
-
         for (int i = 0; i < params.length; i++) {
 
-            //JSONObject actual_movie = results_array.getJSONObject(i);
             Movie actual_movie=params[i];
             String id = actual_movie.getId();
             String title = actual_movie.getTitle();
@@ -40,9 +38,6 @@ public class Storedata extends AsyncTask<Movie, Void, Void> {
             String poster_path = "http://image.tmdb.org/t/p/w342"+actual_movie.getPoster_path();
             String backdrop_path = "http://image.tmdb.org/t/p/original"+actual_movie.getBackdrop_path();
             String favourite="0";
-            //System.out.println("Mujhe dekhna ha"+actual_movie.getString("poster_path"));
-            // store_image(actual_movie.getString("poster_path"),poster_path)
-
 
 
             Vector<ContentValues> cVVector = new Vector<ContentValues>(10);
@@ -56,38 +51,16 @@ public class Storedata extends AsyncTask<Movie, Void, Void> {
             movie_value.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE,favourite);
             movie_value.put(Movie_Contract.Movie_Entry.COLUMN_NAME_BACKDROPPATH,backdrop_path);
             movie_value.put(Movie_Contract.Movie_Entry.COLUMN_NAME_VOTEAVERAGE,vote_average);
-
             cVVector.add(movie_value);
 
-
             int inserted = 0;
-            // add to database
             if ( cVVector.size() > 0 ) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 inserted = mContext.getContentResolver().bulkInsert(Movie_Contract.Movie_Entry.CONTENT_URI, cvArray);
             }
-            System.out.println("yo ho gya"+inserted);
-
-
-
-
-
-
-
-
 
         }
-
-
-
-
-
-
-
-
-
-
         return null;
     }
 }

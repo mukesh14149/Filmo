@@ -23,10 +23,9 @@ public final class Movie_Contract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
+
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
-
-
 
         public static String TABLE_NAME="Movie";
         public static String COLUMN_NAME_ENTRY_ID="id";
@@ -42,7 +41,6 @@ public final class Movie_Contract {
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
-
 
     }
 
