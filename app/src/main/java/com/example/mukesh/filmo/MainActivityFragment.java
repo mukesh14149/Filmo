@@ -57,7 +57,13 @@ public class MainActivityFragment extends Fragment {
     public MainActivityFragment() {
     }
 
+    public interface Callback {
+        void onItemSelected(Movie movie);
+    }
+
+
     public boolean Is_Online(){
+
         ConnectivityManager connectivity = (ConnectivityManager)getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null)
         {
@@ -146,19 +152,16 @@ public class MainActivityFragment extends Fragment {
             gridview.setAdapter(adapter);
         }
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie movie = movieList[position];
-                Intent intent = new Intent(getActivity().getApplication(), Movie_detail.class);
-                Bundle b = new Bundle();
-                b.putParcelable("MOVIE", movie);
-                intent.putExtras(b);
-                startActivity(intent);
+                ((Callback) getActivity()).onItemSelected(movie);
             }
         });
 
         return rootView;
     }
+
 
     @Override
     public void onStart() {

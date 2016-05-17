@@ -9,14 +9,61 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityFragment.Callback{
 
+    private boolean mTwoPane;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (findViewById(R.id.fragmentdetail) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentmain, new MainActivityFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+           mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
+        }
+
+
+    }
+
+    @Override
+    public void onItemSelected(Movie movie) {
+        System.out.println("tripute"+movie.getTitle());
+
+        if (mTwoPane) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("MOVIE", movie);
+
+            Movie_detailFragment fragment = new Movie_detailFragment();
+            fragment.setArguments(bundle);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentdetail, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            System.out.println("tripute1"+movie.getTitle());
+
+            Intent intent = new Intent(this, Movie_detail.class);
+            Bundle b = new Bundle();
+            b.putParcelable("MOVIE", movie);
+            intent.putExtras(b);
+            startActivity(intent);
+
+        }
     }
 
     @Override

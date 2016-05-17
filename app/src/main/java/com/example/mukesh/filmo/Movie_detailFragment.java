@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,9 +60,21 @@ public class Movie_detailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView =inflater.inflate(R.layout.fragment_movie_detail, container, false);
-        Bundle b = getActivity().getIntent().getExtras();
-        final Movie movie = b.getParcelable("MOVIE");
 
+
+        Bundle b = getArguments();
+         Movie movie=null;
+        if(b!=null)
+           movie = b.getParcelable("MOVIE");
+
+
+        System.out.println("tripute2"+movie.getTitle());
+
+        if (movie != null) {
+            rootView.findViewById(R.id.detailfragment).setVisibility(View.VISIBLE);
+        } else {
+            rootView.findViewById(R.id.detailfragment).setVisibility(View.INVISIBLE);
+        }
 
         System.out.println();
 
@@ -132,17 +145,10 @@ public class Movie_detailFragment extends Fragment {
         values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "1");
         final String[] selectionArgs = { String.valueOf(movie.getId()) };
 
-       /* Cursor movieCursor = getContext().getContentResolver().query(
-                Movie_Contract.Movie_Entry.CONTENT_URI,
-                null,
-                Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+ " = ?",
-                new String[]{movie.getId()},
-                null);
-*/
         System.out.println("yo yo i am here");
-      //  System.out.println(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE)));
+        //  System.out.println(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE)));
 
-     //   movie.setFavourite(Integer.parseInt(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE))));
+        //   movie.setFavourite(Integer.parseInt(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE))));
         String favourite="0";
         Cursor movieCursor = getContext().getContentResolver().query(
                 Movie_Contract.Movie_Entry.CONTENT_URI,
@@ -151,47 +157,15 @@ public class Movie_detailFragment extends Fragment {
                 new String[]{movie.getId()},
                 null);
         if(movieCursor!=null) {
-         while(movieCursor.moveToNext()) {
-             System.out.println("happy" + movieCursor.getString(0));
-             movie.setFavourite(Integer.parseInt(movieCursor.getString(0)));
-             favourite=movieCursor.getString(0);
-             System.out.println(movie.getFavourite());
-             break;
-         }
+            while(movieCursor.moveToNext()) {
+                System.out.println("happy" + movieCursor.getString(0));
+                movie.setFavourite(Integer.parseInt(movieCursor.getString(0)));
+                favourite=movieCursor.getString(0);
+                System.out.println(movie.getFavourite());
+                break;
+            }
         }
-        //System.out.println("aj ka vijaar"+movieCursor.getColumnCount());
-       /* String[] movie_list = new String[movieCursor.getCount()];
-        Movie movies;
-        final Movie[] movieArray = new Movie[movieCursor.getCount()];
 
-        int j=0;
-        String favourite="0";
-        if (movieCursor.moveToFirst()) {
-            // int locationIdIndex =
-            do {
-                String id=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID));
-                String title=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_TITLE));
-                String popularity=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POPULARITY));
-                String overview=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_DESCRIPTION));
-                String poster_path=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH));
-                String release=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_RELEASEDATE));
-                String afavourite=movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE));
-                //movies = new Movie(id, title, popularity, overview, poster_path,
-                     //   null, release,null,Integer.parseInt(favourite));
-               // movieArray[j]=movies;
-             //   movie_list[j]= Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342",""));
-                j++;
-                if(title.equals(movie.getTitle())) {
-                    System.out.println(title + "   " + afavourite);
-                    movie.setFavourite(Integer.parseInt(afavourite));
-                    favourite=afavourite;
-                }
-                //   System.out.println("chkkk"+Environment.getExternalStorageDirectory().getAbsolutePath()+(movieCursor.getString(movieCursor.getColumnIndex(Movie_Contract.Movie_Entry.COLUMN_NAME_POSTERPATH)).replace("http://image.tmdb.org/t/p/w342","")));
-            }while (movieCursor.moveToNext());
-        }
-        movieCursor.close();
-
-*/
 
 
 
@@ -215,7 +189,8 @@ public class Movie_detailFragment extends Fragment {
 
 //        System.out.println(favourite+"what is here");
         final Button fav_button=((Button) rootView.findViewById(R.id.fav));;
-       if(favourite.equals("1"))
+        final Movie movief=movie;
+        if(favourite.equals("1"))
             fav_button.setText("FAVOURITE");
 
         if(favourite.equals("0"))
@@ -225,12 +200,12 @@ public class Movie_detailFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                System.out.println(movie.getFavourite()+"kya kr rha ha");
-                int key=movie.getFavourite();
+                System.out.println(movief.getFavourite()+"kya kr rha ha");
+                int key=movief.getFavourite();
                 if(key==0){
                     System.out.println("kyuuuuuuuuuuuuuuu");
                     fav_button.setText("Favourite");
-                    movie.setFavourite(1);
+                    movief.setFavourite(1);
                     values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "1");
                     getContext().getContentResolver().update(
                             Movie_Contract.Movie_Entry.CONTENT_URI,values,Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+" LIKE ?",selectionArgs);
@@ -240,7 +215,7 @@ public class Movie_detailFragment extends Fragment {
 
                 if(key==1){
                     fav_button.setText("Mark Favourite");
-                    movie.setFavourite(0);
+                    movief.setFavourite(0);
                     values.put(Movie_Contract.Movie_Entry.COLUMN_NAME_FAVOURITE, "0");
                     getContext().getContentResolver().update(
                             Movie_Contract.Movie_Entry.CONTENT_URI,values,Movie_Contract.Movie_Entry.COLUMN_NAME_ENTRY_ID+" LIKE ?",selectionArgs);
@@ -288,6 +263,7 @@ public class Movie_detailFragment extends Fragment {
 
 
         movieCursor.close();
+
         return rootView;
     }
 

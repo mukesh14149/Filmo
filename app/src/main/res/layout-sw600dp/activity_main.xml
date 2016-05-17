@@ -1,11 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="horizontal"
     tools:context="com.example.mukesh.filmo.MainActivity">
+
+
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -21,17 +24,23 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+
+    <!--
+    This layout is a two-pane layout for the Items master/detail flow.
+    -->
+
+    <fragment
         android:id="@+id/fragmentmain"
         android:name="com.example.mukesh.filmo.MainActivityFragment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:layout="@layout/fragment_main" />
+        android:layout_weight="2"
+        tools:layout="@android:layout/list_content" />
 
+    <FrameLayout
+        android:id="@+id/fragmentdetail"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="4" />
 
-
-
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>
