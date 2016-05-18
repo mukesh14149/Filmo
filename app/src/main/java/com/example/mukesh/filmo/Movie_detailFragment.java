@@ -81,6 +81,7 @@ public class Movie_detailFragment extends Fragment {
         View rootView =inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
         Bundle b = getArguments();
+
         Movie movie=null;
         if(b!=null)
            movie = b.getParcelable("MOVIE");
